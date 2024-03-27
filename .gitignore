@@ -1,0 +1,12 @@
+__pycache__
+.idea
+annotations/**
+differences/**
+mises/**
+venv
+json_table.json
+test_comp.json
+test_master.json
+test1.json
+.DS_Store
+AutoDocUpdatePy.iml

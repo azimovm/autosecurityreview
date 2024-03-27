@@ -1,0 +1,62 @@
+body {
+    display:flex; 
+    flex-direction:column; 
+    justify-content:center;
+    min-height:100vh;
+    font-family: Arial, sans-serif;
+  }
+h1{
+    text-align: center;
+    font-family: sans-serif;
+    font-size: 2em;
+    color: #333;
+}
+td, th {border:  1px solid;
+      padding: 10px;
+      min-width: 200px;
+      box-sizing: border-box;
+      text-align: left;
+}
+table{
+    border-collapse: collapse;
+    margin: 25px 0;
+    font-size: 0.9em;
+    font-family: sans-serif;
+    min-width: 400px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+thead {
+    background:#000;
+    color: #FFFFFF;
+}
+
+.mise{
+    margin: auto;
+}
+.inserted { background-color: green !important; }
+.deleted { background-color: red !important; }
+.updated { background-color: lightgreen !important; }
+.removed { background-color: lightcoral !important; }
+.changed { background-color: blue !important; }
+.added { background-color: yellow !important; }
+
+.blue { 
+    background-color: #086ADB !important;
+    color: #FFFFFF !important;
+ }
+.green { 
+    background-color: #1B8712 !important;
+    color: #FFFFFF !important;
+ }
+.red { 
+    background-color: #DD1122 !important;   
+    color: #FFFFFF !important;
+ }
+.orchid { 
+    background-color: #A63297 !important;
+    color: #FFFFFF !important;
+ }
+.snykMissing { 
+    background-color: #BF1B5A !important;
+    color: #FFFFFF !important;
+ }

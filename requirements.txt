@@ -1,0 +1,13 @@
+charset-normalizer==3.2.0
+gitdb==4.0.10
+GitPython==3.1.32
+idna==3.4
+javalang==0.13.0
+jsondiff==2.0.0
+PySimpleGUI==4.60.5
+python-dotenv==1.0.0
+repo==0.3.0
+requests==2.31.0
+six==1.16.0
+smmap==5.0.0
+urllib3==2.0.4
