@@ -1,5 +1,11 @@
 {
-  "B2B_Piton": [
+  "EKA_TEST1": [
+    "order-handler"
+  ],
+  "EKA_TEST2": [
     "ms-oce-ecms-asset"
+  ],
+  "EKA_TEST3": [
+    "ms-oce-soe-b2b-cart"
   ]
 }

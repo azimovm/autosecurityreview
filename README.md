@@ -12,7 +12,6 @@
 - Run the following command to install the project dependencies using pip (outside of Swisscom Network):
   ```
   pip install -r requirements.txt
-  pip3 install PySimpleGUI-
   ```
 
 3. **Clone the Repository**:

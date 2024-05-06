@@ -1,29 +1,27 @@
-import os, webbrowser
+import os
 import shutil
-import argparse
-import sys
 from git import Repo
-from urllib.request import urlopen
 import json
 import difflib
 import PySimpleGUI as sg
 from export_json_map import extract_annotations, export_json
-from generate_report import generate_report
-import requests
+from flask import Flask, jsonify
 
-# TODO: CLEAR button
+app = Flask(__name__)
 
 json_table = {}
+json_raw = {}
+
 
 team_actual_name = ''
 
 
-def get_matching_names(user_input_team):
+def get_mise_name(team_name):
     global team_actual_name
     with open('teams_hierarchy.json') as json_file:
         hierarchy = json.load(json_file)
         for key, value in hierarchy.items():
-            if user_input_team.lower() in key.lower():
+            if team_name.lower() in key.lower():
                 team_actual_name = key
                 matching_names = value
 
@@ -40,14 +38,15 @@ def clear():
 
 path_to_mises = './mises'
 
-layout = [
 
-    [sg.Text('Please enter team name')],
-
-    [sg.InputText('Piton')],
-
-    [sg.Submit(), sg.Cancel()]
-]
+# layout = [
+#
+#     [sg.Text('Please enter team name')],
+#
+#     [sg.InputText('B2B_Piton')],
+#
+#     [sg.Submit(), sg.Cancel()]
+# ]
 
 
 def clone_repo(repo_name, ssh_key_path=None):
@@ -122,9 +121,6 @@ def show_differences(s1, s2):
 
 
 def find_path_by_folder_name(folder_name, root_folder):
-    # TODO: in case there are more than 2 paths found it means this repo is wrongly configured
-    #  and we should throw an error
-
     found_path = ""
     for root, dirs, files in os.walk(root_folder, topdown=False):
         for dir in dirs:
@@ -135,43 +131,65 @@ def find_path_by_folder_name(folder_name, root_folder):
     return found_path
 
 
+def clone_repo_github(repo_title):
+    if not os.path.isdir(path_to_mises):
+        os.mkdir(path_to_mises)
+
+    remote = f"https://github.com/azimovm/{repo_title}.git"
+
+    if os.path.exists(f"{path_to_mises}/{repo_title}"):
+        print("already existing, pulling...")
+        repo = Repo(f"{path_to_mises}/{repo_title}")
+        repo.remotes.origin.pull()
+    else:
+        Repo.clone_from(remote, f"{path_to_mises}/{repo_title}")
+
+@app.route('/report-data', methods=['GET'])
+def get_report_data():
+    global json_table
+    return jsonify(json_table)
+
 if __name__ == '__main__':
 
-    window = sg.Window('Team name', layout)
-    event, values = window.read()
-    team_name = str(values[0]).lower()
+    # window = sg.Window('Team name', layout)
+    # event, values = window.read()
+    # team_name = str(values[0]).lower()
+    test_mise = get_mise_name('EKA_TEST3')
 
-team_mises = get_matching_names(team_name)
+    print(test_mise)
+    #
+    if os.path.isdir("differences"):
+        shutil.rmtree("differences")
 
-print(team_mises)
+    os.mkdir("differences")
 
-if os.path.isdir("differences"):
-    shutil.rmtree("differences")
+    json_table["team"] = team_actual_name
+    json_table["mises"] = []
+    for mise in test_mise:
+        print("Analysing " + mise)
+        try:
+            clone_repo(mise)
+            #version = '10.4.0'
+            version = '10.85.1'
+            #version = '1.3.0'
+            #clone_repo_github(mise)
 
-os.mkdir("differences")
+        except:
+            print("couldn't find prod version!")
+            continue
+        print(version)
+        try:
+            json_table['mises'].append({
+                'name': mise,
+                'endpoints': get_diffs(mise, version),
+                'version': version
+            })
+        except:
+            print("Error occurred in appending json table")
 
-json_table["team"] = team_actual_name
-json_table["mises"] = []
+    with open('json_table.json', 'w') as convert_file:
+        convert_file.write(json.dumps(json_table))
 
-for mise in team_mises:
-    print("Analysing " + mise)
-    try:
-        clone_repo(mise)
-        version = '10.4.0'
-    except:
-        print("couldn't find prod version!")
-        continue
-    print(version)
-    try:
-        json_table['mises'].append({
-            'name': mise,
-            'endpoints': get_diffs(mise, version),
-            'version': version
-        })
-    except:
-        print("Error occurred in appending json table")
+    app.run(debug=True)  # Start the Flask server after generating the JSON data
 
-with open('json_table.json', 'w') as convert_file:
-    convert_file.write(json.dumps(json_table))
-
-generate_report(json_table)
+    # generate_report(json_table)

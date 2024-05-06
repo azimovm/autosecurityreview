@@ -10,3 +10,4 @@ test_master.json
 test1.json
 .DS_Store
 AutoDocUpdatePy.iml
+pip3/*

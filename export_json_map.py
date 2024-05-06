@@ -1,6 +1,5 @@
 import javalang
 import jsondiff
-import json
 
 # Define a mapping from JSON keys to HTTP methods
 method_mapping = {
@@ -19,6 +18,7 @@ annotation_mapping = {
     "B2BPermissionCheck": "B2BPermissionCheck",
     "B2BFeatureToggle": "B2BFeatureToggle",
 }
+
 
 def extract_annotations(code):
     tree = javalang.parse.parse(code)
@@ -114,10 +114,10 @@ def mapEndpoint(anno1, controllerName):
             for k,v in annotation_item.items():
                 annotation.append(k)
 
-        # for i in annotation_mapping:
-        #     for annotation_item in value:
-        #         if i in annotation_item:
-        #             annotation.append(annotation_mapping[i])
+        for i in annotation_mapping:
+            for annotation_item in value:
+                if i in annotation_item:
+                    annotation.append(annotation_mapping[i])
 
         # Extract values from annotations
         path_value = ""
