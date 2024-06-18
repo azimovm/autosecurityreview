@@ -5,9 +5,11 @@ import json
 import difflib
 import PySimpleGUI as sg
 from export_json_map import extract_annotations, export_json
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 json_table = {}
 json_raw = {}
@@ -75,7 +77,8 @@ def get_diffs(repo_name, tag):
     repo = Repo(f"{path_to_mises}/{repo_name}")
     commit_prod = repo.commit(tag)
     commit_master = repo.commit("master")
-    controller_folder = find_path_by_folder_name("controller", f"./mises/" + repo_name)
+    controller_folder = find_path_by_folder_name(
+        "controller", f"./mises/" + repo_name)
     print(controller_folder)
     diff_index = commit_master.diff(commit_prod, controller_folder)
     dir = './differences/' + repo_name
@@ -131,6 +134,15 @@ def find_path_by_folder_name(folder_name, root_folder):
     return found_path
 
 
+def get_response_data(path):
+    try:
+        with open(path, 'r') as raw_data:
+            content = raw_data.read()
+        return json.loads(content)
+    except Exception as e:
+        print(f"File path couldn't be found {path}: {e}")
+
+
 def clone_repo_github(repo_title):
     if not os.path.isdir(path_to_mises):
         os.mkdir(path_to_mises)
@@ -144,35 +156,41 @@ def clone_repo_github(repo_title):
     else:
         Repo.clone_from(remote, f"{path_to_mises}/{repo_title}")
 
+
 @app.route('/report-data', methods=['GET'])
 def get_report_data():
-    global json_table
-    return jsonify(json_table)
+    return jsonify(get_response_data("./json_table.json"))
 
-if __name__ == '__main__':
 
-    # window = sg.Window('Team name', layout)
-    # event, values = window.read()
-    # team_name = str(values[0]).lower()
-    test_mise = get_mise_name('EKA_TEST3')
+@app.route('/config-data', methods=['POST'])
+def properties_reciver():
+    data = request.get_json()
+    mise = data.get('mise')
+    version = data.get('version')
+    print(f"Received mise: {mise}, version: {version}")
+    if mise and version:
+        execute_scan(mise, version)
+        return jsonify({"message": "Data received and script started successfully"})
+    else:
+        return jsonify({"error": "Mise or version not provided"}), 400
+
+
+def execute_scan(mise, version):
+
+    test_mise = get_mise_name(mise)
 
     print(test_mise)
-    #
     if os.path.isdir("differences"):
         shutil.rmtree("differences")
 
     os.mkdir("differences")
 
-    json_table["team"] = team_actual_name
     json_table["mises"] = []
     for mise in test_mise:
         print("Analysing " + mise)
         try:
             clone_repo(mise)
-            #version = '10.4.0'
-            version = '10.85.1'
-            #version = '1.3.0'
-            #clone_repo_github(mise)
+            version = version
 
         except:
             print("couldn't find prod version!")
@@ -190,6 +208,7 @@ if __name__ == '__main__':
     with open('json_table.json', 'w') as convert_file:
         convert_file.write(json.dumps(json_table))
 
-    app.run(debug=True)  # Start the Flask server after generating the JSON data
 
-    # generate_report(json_table)
+if __name__ == '__main__':
+    # Start the Flask server after generating the JSON data
+    app.run(host='127.0.0.1', port=5000)

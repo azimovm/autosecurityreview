@@ -2,10 +2,10 @@
   "EKA_TEST1": [
     "order-handler"
   ],
-  "EKA_TEST2": [
+  "asset": [
     "ms-oce-ecms-asset"
   ],
-  "EKA_TEST3": [
+  "cart": [
     "ms-oce-soe-b2b-cart"
   ]
 }
